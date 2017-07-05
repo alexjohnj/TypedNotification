@@ -7,6 +7,9 @@
 
 import Foundation
 
+/// A reference type storing a `Notification` observer (an `NSObjectProtocol`
+/// conforming type). The observer is automatically deregistered when
+/// deallocated.
 public final class NotificationObserver {
     let token: NSObjectProtocol
     let center: TypedNotificationCenter
