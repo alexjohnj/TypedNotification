@@ -1,5 +1,5 @@
 //
-//  Token.swift
+//  TypedNotification.swift
 //  TypedNotification
 //
 //  Created by Alex Jackson on 2017-07-03.
