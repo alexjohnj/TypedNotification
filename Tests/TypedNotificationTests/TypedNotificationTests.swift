@@ -14,7 +14,7 @@ class MockNotifcationCenter: TypedNotificationCenter {
     static let shared = MockNotifcationCenter()
     var removedObserversCount = 0 // The number of times an observer has been removed from the notification center
 
-    func removeObserver(_ observer: NotificationObserver) {
+    func removeObserver(observer: NotificationObserver) {
         removedObserversCount += 1
     }
 

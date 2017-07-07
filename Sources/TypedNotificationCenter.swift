@@ -17,7 +17,7 @@ public protocol TypedNotificationCenter {
     func addObserver<T: TypedNotification>(forType type: T.Type, object obj: T.Sender?,
                      queue: OperationQueue?, using block: @escaping (T) -> Void) -> NotificationObserver
     /// Deregister a `NotificationObserver`.
-    func removeObserver(_ observer: NotificationObserver)
+    func removeObserver(observer: NotificationObserver)
 }
 
 extension NotificationCenter: TypedNotificationCenter {
@@ -62,7 +62,7 @@ extension NotificationCenter: TypedNotificationCenter {
     }
 
     /// Deregister an observer for notifications.
-    public func removeObserver(_ observer: NotificationObserver) {
+    public func removeObserver(observer: NotificationObserver) {
         self.removeObserver(observer.token)
     }
 }

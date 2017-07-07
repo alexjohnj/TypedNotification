@@ -20,6 +20,6 @@ public final class NotificationObserver {
     }
 
     deinit {
-        center.removeObserver(self)
+        center.removeObserver(observer: self)
     }
 }
