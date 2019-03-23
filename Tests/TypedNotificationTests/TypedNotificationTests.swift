@@ -22,6 +22,17 @@ class TypedNotificationTests: XCTestCase {
         XCTAssertTrue(disposeBlockCalled)
     }
 
+    func test_notificationObserver_storedIn_addsObserverToStore() {
+        // Given
+        var observerStore: [NotificationObserver] = []
+
+        // When
+        NotificationObserver({ }).stored(in: &observerStore)
+
+        // Then
+        XCTAssertEqual(observerStore.count, 1)
+    }
+
     func test_notificationCenter_works() {
         // Given
         let exp = expectation(description: "The test notification is delivered")

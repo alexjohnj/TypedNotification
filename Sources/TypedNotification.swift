@@ -93,6 +93,10 @@ public final class NotificationObserver {
         self.disposeBlock = disposeBlock
     }
 
+    public func stored<C: RangeReplaceableCollection>(in observerStore: inout C) where C.Element == NotificationObserver {
+        observerStore.append(self)
+    }
+
     deinit {
         disposeBlock()
     }
