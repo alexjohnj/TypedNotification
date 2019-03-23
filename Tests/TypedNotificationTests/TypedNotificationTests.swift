@@ -1,116 +1,64 @@
+import class Foundation.NotificationCenter
 import XCTest
 @testable import TypedNotification
 
-struct TestNotification: TypedNotification {
-    let associatedValue: Int
-    let object: TestObserver
-}
-
-class MockNotifcationCenter: TypedNotificationCenter {
-    static let shared = MockNotifcationCenter()
-    var removedObserversCount = 0 // The number of times an observer has been removed from the notification center
-
-    func removeObserver(observer: NotificationObserver) {
-        removedObserversCount += 1
-    }
-
-    func post<T: TypedNotification>(_ notification: T) {
-        return
-    }
-
-    func addObserver<T: TypedNotification>(forType type: T.Type, object obj: T.Object?, queue: OperationQueue?, using block: @escaping (T) -> Void) -> NotificationObserver {
-        return NotificationObserver(NSObject(), notiCenter: self)
-    }
-}
-
-class TestObserver {
-    let center: TypedNotificationCenter
-    let observeSelf: Bool
-
-    var _valueObserver: NotificationObserver?
-    var value = Int(arc4random()) {
-        didSet {
-            center.post(TestNotification(associatedValue: value, object: self))
-        }
-    }
-
-    var block: ((TestNotification) -> Void)? = nil {
-        didSet {
-            if let block = block {
-                _valueObserver = nil
-                let obj = observeSelf ? self : nil
-                _valueObserver = center.addObserver(forType: TestNotification.self, object: obj, queue: nil, using: block)
-            }
-        }
-    }
-
-    func refreshValue() {
-        value = Int(arc4random())
-    }
-
-    init(observeSelf: Bool, center: TypedNotificationCenter) {
-        self.observeSelf = observeSelf
-        self.center = center
-    }
-}
-
 class TypedNotificationTests: XCTestCase {
 
-    func testTokenDeinit() {
-        weak var observerToken: NotificationObserver? = {
-            let observer = TestObserver(observeSelf: true, center: MockNotifcationCenter.shared)
-            observer.block = { _ in return }
-            return observer._valueObserver
-        }()
-
-        XCTAssertNil(observerToken)
-        XCTAssertEqual(MockNotifcationCenter.shared.removedObserversCount, 1)
+    private class TestObject { }
+    private struct TestNotification: TypedNotification {
+        let object: TestObject
+        let testValue: Int
     }
 
-    func testObserveNotificationsFromSender() {
-        let observer1 = TestObserver(observeSelf: true, center: NotificationCenter.default)
-        let observer2 = TestObserver(observeSelf: true, center: NotificationCenter.default)
-        var blockCallCount = 0
+    func test_notificationObserver_invokesDisposeBlockOnDeinit() {
+        // Given
+        var disposeBlockCalled = false
+        var token: NotificationObserver? = NotificationObserver { disposeBlockCalled = true }
 
-        observer1.block = { (noti: TestNotification) -> Void in
-            XCTAssertTrue(noti.object === observer1)
-            blockCallCount += 1
-        }
+        // When
+        token = nil
 
-        observer2.block = { (noti: TestNotification) -> Void in
-            XCTAssertTrue(noti.object === observer2)
-            blockCallCount += 1
-        }
-
-        observer1.refreshValue()
-        observer2.refreshValue()
-
-        XCTAssertEqual(blockCallCount, 2)
+        // Then
+        XCTAssertTrue(disposeBlockCalled)
     }
 
-    func testObserveNotificationsFromAny() {
-        let observer1 = TestObserver(observeSelf: false, center: NotificationCenter.default)
-        let observer2 = TestObserver(observeSelf: false, center: NotificationCenter.default)
-        let observer3 = TestObserver(observeSelf: true, center: NotificationCenter.default)
-        var blockCallCount = 0
-
-        observer1.block = { (noti: TestNotification) -> Void in
-            blockCallCount += 1
+    func test_notificationCenter_works() {
+        // Given
+        let exp = expectation(description: "The test notification is delivered")
+        let notificationCenter = NotificationCenter()
+        let testNote = TestNotification(object: TestObject(), testValue: 2)
+        var receivedNote: TestNotification?
+        let observer = notificationCenter.addObserver(forType: TestNotification.self, object: testNote.object, queue: nil) { note in
+            receivedNote = note
+            exp.fulfill()
         }
 
-        observer2.block = { (noti: TestNotification) -> Void in
-            blockCallCount += 1
+        // When
+        notificationCenter.post(testNote)
+        waitForExpectations(timeout: 0.1)
+
+        // Then
+        XCTAssertNotNil(receivedNote)
+        XCTAssertEqual(receivedNote?.testValue, testNote.testValue)
+        XCTAssert(receivedNote!.object === testNote.object,
+                  "Received notification's object should be identical to the posting notification's object")
+    }
+
+    func test_notificationCenter_removesObserverWhenObserverIsDeallocated() {
+        // Given
+        let exp = expectation(description: "The test notification is not delivered")
+        exp.isInverted = true
+        let notificationCenter = NotificationCenter()
+        var observer: NotificationObserver? = notificationCenter.addObserver(forType: TestNotification.self, object: nil, queue: nil) { _ in
+            exp.fulfill()
         }
 
-        observer3.block = { (noti: TestNotification) -> Void in
-            XCTAssertTrue(noti.object === observer3)
-            blockCallCount += 1
-        }
+        // When
+        observer = nil
+        notificationCenter.post(TestNotification(object: TestObject(), testValue: 2))
+        waitForExpectations(timeout: 0.1)
 
-        observer1.refreshValue()
-        observer2.refreshValue()
-        observer3.refreshValue()
-
-        XCTAssertEqual(blockCallCount, 7)
+        // Then
+        // The expectation should not have been fulfilled
     }
 }

@@ -8,6 +8,7 @@
 import struct Foundation.Notification
 import class Foundation.NotificationCenter
 import class Foundation.OperationQueue
+import os.lock
 
 /// The `userInfo` dictionary key that a `TypedNotification` instance is stored under in a Foundation `Notification`
 /// object.
@@ -75,73 +76,74 @@ extension TypedNotification {
 
 // MARK: - NotificationObserver Definition
 
-/// A reference type storing a `Notification` observer (an `NSObjectProtocol` conforming type). The observer is
-/// automatically deregistered when deallocated.
+/// An opaque reference type that manages the lifetime of a notification observer.
+///
+/// A `NotificationObserver is initialized with a dispose block that is executed when the observer is deallocated.
+/// Inside the dispose block, you should run whatever actions are needed to remove the observer.
+///
 public final class NotificationObserver {
-    let token: Any
-    let center: TypedNotificationCenter
 
-    public init(_ token: Any, notiCenter: TypedNotificationCenter = NotificationCenter.default) {
-        self.token = token
-        self.center = notiCenter
+    private let disposeBlock: () -> Void
+
+    /// Initializes a new observer that runs a provided block when it is deallocated.
+    ///
+    /// - parameter disposeBlock: A block to evaluate when the token is deallocated.
+    ///
+    public init(_ disposeBlock: @escaping () -> Void) {
+        self.disposeBlock = disposeBlock
     }
 
     deinit {
-        center.removeObserver(observer: self)
+        disposeBlock()
     }
 }
 
 // MARK: - TypedNotificationCenter Definition
 
-/// A notification center that supports posting and observing `TypedNotification`s. The API mimics Foundation's
-/// block-based notification API.
+/// A type that can post `TypedNotification`s and add notification observers.
 ///
 public protocol TypedNotificationCenter {
 
-    /// Post a `TypedNotification`
+    /// Posts a `TypedNotification`
+    ///
+    /// - parameter notification: The notification to post.
+    ///
     func post<T: TypedNotification>(_ notification: T)
 
-    /// Register a block to be executed when a `TypedNotification` is posted.
+    /// Registers a block to be executed when a matching notification is posted.
+    ///
+    /// - Parameters:
+    ///   - type: The type of notification to observe.
+    ///   - object: An object to filter notifications by. Only notifications whose object is `object` will be delivered
+    ///   to the observer. Pass `nil` to receive notifications from all objects.
+    ///   - queue: An OperationQueue to run `block` on. Pass `nil` to have `block` evaluated synchronously on the
+    ///   posting thread.
+    ///   - block: A block to execute when a matching notification is posted. The block takes the matching notification
+    ///   as an argument.
+    ///
+    /// - Returns: A token that manages the lifetime of the observer. When the token is deallocated, the notification
+    /// observer is removed.
+    ///
     func addObserver<T: TypedNotification>(forType type: T.Type, object obj: T.Object?,
                                            queue: OperationQueue?, using block: @escaping (T) -> Void) -> NotificationObserver
-
-    /// Deregister a `NotificationObserver`.
-    func removeObserver(observer: NotificationObserver)
 }
 
 // MARK: - NSNotificationCenter + TypedNotificationCenter
 
 extension NotificationCenter: TypedNotificationCenter {
 
-    /// Posts a `TypedNotification`
     public func post<T: TypedNotification>(_ notification: T) {
         let nsNotification = Notification(name: T.name, object: notification.object,
                                           userInfo: [kTypedNotificationUserInfoKey: notification])
         self.post(nsNotification)
     }
 
-    /**
-     Register a block to be executed when a notification is posted.
-
-     - Parameters:
-        - type: The type of notification to register for.
-        - obj: The object from which you want to receive notifications. Pass `nil` to receive all notifications.
-        - queue: The queue on which to execute the block.  See `NotificationCenter`'s documentation for what happens
-            when `nil` is passed.
-        - block: A block to execute when a matching notification is posted. The block takes a single instance of `type`
-            as an  argument.
-
-     - Returns: A `NotificationObserver` that acts as the observer for the block. The observer is automatically
-     deregistered when deallocated so  be sure to keep a reference to it.
-
-     - SeeAlso:  NotificationCenter
-     */
     public func addObserver<T: TypedNotification>(forType type: T.Type,
                                                   object obj: T.Object?,
                                                   queue: OperationQueue?,
                                                   using block: @escaping (T) -> Void)
         -> NotificationObserver {
-        let token = self.addObserver(forName: T.name, object: obj, queue: queue) { (untypedNoti) in
+        let observer = self.addObserver(forName: T.name, object: obj, queue: queue) { (untypedNoti) in
             guard let typedNoti = untypedNoti.userInfo?[kTypedNotificationUserInfoKey] as? T else {
                 print("Typed notification could not be constructed from Notification \(untypedNoti.name)")
                 return
@@ -149,11 +151,6 @@ extension NotificationCenter: TypedNotificationCenter {
             block(typedNoti)
         }
 
-        return NotificationObserver(token, notiCenter: self)
-    }
-
-    /// Deregister an observer for notifications.
-    public func removeObserver(observer: NotificationObserver) {
-        self.removeObserver(observer.token)
+        return NotificationObserver { self.removeObserver(observer) }
     }
 }
