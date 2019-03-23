@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA58547D1F0CF7D4007F59FC /* NotificationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA58547C1F0CF7D4007F59FC /* NotificationObserver.swift */; };
-		FA58547F1F0CF7E6007F59FC /* TypedNotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA58547E1F0CF7E6007F59FC /* TypedNotificationCenter.swift */; };
 		OBJ_20 /* TypedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_8 /* TypedNotification.swift */; };
 		OBJ_27 /* TypedNotificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* TypedNotificationTests.swift */; };
 		OBJ_29 /* TypedNotification.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* TypedNotification.framework */; };
@@ -25,8 +23,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		FA58547C1F0CF7D4007F59FC /* NotificationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationObserver.swift; sourceTree = "<group>"; };
-		FA58547E1F0CF7E6007F59FC /* TypedNotificationCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypedNotificationCenter.swift; sourceTree = "<group>"; };
 		OBJ_11 /* TypedNotificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypedNotificationTests.swift; sourceTree = "<group>"; };
 		OBJ_13 /* TypedNotification.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TypedNotification.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_14 /* TypedNotificationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = TypedNotificationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,8 +81,6 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_8 /* TypedNotification.swift */,
-				FA58547C1F0CF7D4007F59FC /* NotificationObserver.swift */,
-				FA58547E1F0CF7E6007F59FC /* TypedNotificationCenter.swift */,
 			);
 			path = Sources;
 			sourceTree = SOURCE_ROOT;
@@ -175,8 +169,6 @@
 			buildActionMask = 0;
 			files = (
 				OBJ_20 /* TypedNotification.swift in Sources */,
-				FA58547D1F0CF7D4007F59FC /* NotificationObserver.swift in Sources */,
-				FA58547F1F0CF7E6007F59FC /* TypedNotificationCenter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
