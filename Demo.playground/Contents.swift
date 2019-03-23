@@ -74,7 +74,7 @@ No more worrying about calling `removeObserver`!
 Note we set the initial value to `nil` here so that notifications from `self`
 can be registered in `init`.
 */
-    private var _valueObserver: NotificationObserver? = nil
+    private var _valueObserver: NotificationObservation? = nil
 
 /*:
 Finally, this is how we post a `TypedNotification`. Just configure a new instance

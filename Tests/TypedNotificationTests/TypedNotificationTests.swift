@@ -10,27 +10,27 @@ class TypedNotificationTests: XCTestCase {
         let testValue: Int
     }
 
-    func test_notificationObserver_invokesDisposeBlockOnDeinit() {
+    func test_notificationObservation_invokesDisposeBlockOnDeinit() {
         // Given
         var disposeBlockCalled = false
-        var token: NotificationObserver? = NotificationObserver { disposeBlockCalled = true }
+        var observation: NotificationObservation? = NotificationObservation { disposeBlockCalled = true }
 
         // When
-        token = nil
+        observation = nil
 
         // Then
         XCTAssertTrue(disposeBlockCalled)
     }
 
-    func test_notificationObserver_storedIn_addsObserverToStore() {
+    func test_notificationObservation_storedIn_addsObservationToStore() {
         // Given
-        var observerStore: [NotificationObserver] = []
+        var observationStore: [NotificationObservation] = []
 
         // When
-        NotificationObserver({ }).stored(in: &observerStore)
+        NotificationObservation({ }).stored(in: &observationStore)
 
         // Then
-        XCTAssertEqual(observerStore.count, 1)
+        XCTAssertEqual(observationStore.count, 1)
     }
 
     func test_notificationCenter_works() {
@@ -39,7 +39,7 @@ class TypedNotificationTests: XCTestCase {
         let notificationCenter = NotificationCenter()
         let testNote = TestNotification(object: TestObject(), testValue: 2)
         var receivedNote: TestNotification?
-        let observer = notificationCenter.addObserver(forType: TestNotification.self, object: testNote.object, queue: nil) { note in
+        let observation = notificationCenter.addObserver(forType: TestNotification.self, object: testNote.object, queue: nil) { note in
             receivedNote = note
             exp.fulfill()
         }
@@ -55,17 +55,17 @@ class TypedNotificationTests: XCTestCase {
                   "Received notification's object should be identical to the posting notification's object")
     }
 
-    func test_notificationCenter_removesObserverWhenObserverIsDeallocated() {
+    func test_notificationCenter_removesObserverWhenObservationIsDeallocated() {
         // Given
         let exp = expectation(description: "The test notification is not delivered")
         exp.isInverted = true
         let notificationCenter = NotificationCenter()
-        var observer: NotificationObserver? = notificationCenter.addObserver(forType: TestNotification.self, object: nil, queue: nil) { _ in
+        var observation: NotificationObservation? = notificationCenter.addObserver(forType: TestNotification.self, object: nil, queue: nil) { _ in
             exp.fulfill()
         }
 
         // When
-        observer = nil
+        observation = nil
         notificationCenter.post(TestNotification(object: TestObject(), testValue: 2))
         waitForExpectations(timeout: 0.1)
 

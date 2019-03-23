@@ -74,18 +74,18 @@ extension TypedNotification {
     }
 }
 
-// MARK: - NotificationObserver Definition
+// MARK: - NotificationObservation Definition
 
 /// An opaque reference type that manages the lifetime of a notification observer.
 ///
-/// A `NotificationObserver is initialized with a dispose block that is executed when the observer is deallocated.
+/// A `NotificationObservation` is initialized with a dispose block that is executed when the observer is deallocated.
 /// Inside the dispose block, you should run whatever actions are needed to remove the observer.
 ///
-public final class NotificationObserver {
+public final class NotificationObservation {
 
     private let disposeBlock: () -> Void
 
-    /// Initializes a new observer that runs a provided block when it is deallocated.
+    /// Initializes a new observation that runs a provided block when it is deallocated.
     ///
     /// - parameter disposeBlock: A block to evaluate when the token is deallocated.
     ///
@@ -93,8 +93,8 @@ public final class NotificationObserver {
         self.disposeBlock = disposeBlock
     }
 
-    public func stored<C: RangeReplaceableCollection>(in observerStore: inout C) where C.Element == NotificationObserver {
-        observerStore.append(self)
+    public func stored<C: RangeReplaceableCollection>(in observationStore: inout C) where C.Element == NotificationObservation {
+        observationStore.append(self)
     }
 
     deinit {
@@ -125,11 +125,11 @@ public protocol TypedNotificationCenter {
     ///   - block: A block to execute when a matching notification is posted. The block takes the matching notification
     ///   as an argument.
     ///
-    /// - Returns: A token that manages the lifetime of the observer. When the token is deallocated, the notification
-    /// observer is removed.
+    /// - Returns: A notification observation that manages the lifetime of the observer. When the observation is
+    /// deallocated, the notification observer is removed.
     ///
     func addObserver<T: TypedNotification>(forType type: T.Type, object obj: T.Object?,
-                                           queue: OperationQueue?, using block: @escaping (T) -> Void) -> NotificationObserver
+                                           queue: OperationQueue?, using block: @escaping (T) -> Void) -> NotificationObservation
 }
 
 // MARK: - NSNotificationCenter + TypedNotificationCenter
@@ -146,7 +146,7 @@ extension NotificationCenter: TypedNotificationCenter {
                                                   object obj: T.Object?,
                                                   queue: OperationQueue?,
                                                   using block: @escaping (T) -> Void)
-        -> NotificationObserver {
+        -> NotificationObservation {
         let observer = self.addObserver(forName: T.name, object: obj, queue: queue) { (untypedNoti) in
             guard let typedNoti = untypedNoti.userInfo?[kTypedNotificationUserInfoKey] as? T else {
                 print("Typed notification could not be constructed from Notification \(untypedNoti.name)")
@@ -155,6 +155,6 @@ extension NotificationCenter: TypedNotificationCenter {
             block(typedNoti)
         }
 
-        return NotificationObserver { self.removeObserver(observer) }
+        return NotificationObservation { self.removeObserver(observer) }
     }
 }
