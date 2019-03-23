@@ -9,37 +9,67 @@ import struct Foundation.Notification
 import class Foundation.NotificationCenter
 import class Foundation.OperationQueue
 
+/// The `userInfo` dictionary key that a `TypedNotification` instance is stored under in a Foundation `Notification`
+/// object.
+private let kTypedNotificationUserInfoKey = "_AJJTypedNotificationUserInfoKey"
+
 // MARK: - TypedNotification Definition
 
-/// A notification that can be posted by a `TypedNotification` instance.
+/// A notification that can be posted by a `TypedNotificationCenter` instance.
+///
+/// `TypedNotification` provides a type-safe alternative to Foundation's `Notification` type. All conforming types must
+/// specify the type of the `object` attached to the notification. Conforming types can attach additional data to the
+/// notification as properties. This replaces stringly typed `userInfo` dictionary attached to Foundation
+/// `Notification`s
+///
+/// ## Conforming to `TypedNotification`
+///
+/// Conforming types must declare the type of the object attached to the notification and provide storage for it. For
+/// example, a notification posted by a `DataStore` object might look like this:
+///
+/// ```
+/// struct DataStoreDidSaveNotification: TypedNotification {
+///     /// The data store posting the notification.
+///     let object: DataStore
+/// }
+/// ```
+///
+/// ## Customising the Notification Name
+///
+/// A default notification name for conforming types is generated in a protocol extension. The name consists of the name
+/// of the notification type prefixed by `AJJ`. You can specify a different name by implementing the static `name`
+/// property on your notification types:
+///
+/// ```
+/// struct DataStoreDidSaveNotification: TypedNotification {
+///
+///     static let name = Notification.Name("XYZDataStoreDidSave")
+///
+///     /// The data store posting the notification.
+///     let object: DataStore
+/// }
+/// ```
 ///
 public protocol TypedNotification {
 
-    associatedtype Sender
+    /// The type of an object attached to the notification.
+    associatedtype Object
 
-    /// The name of the notification used as an identifier.
-    static var name: String { get }
+    /// The name of the notification that identifies it.
+    ///
+    /// The default implementation returns the name of `Self` prefixed with `AJJ`.
+    ///
+    static var name: Notification.Name { get }
 
-    /// The object sending the notification.
-    var sender: Sender { get }
+    /// An object attached to the notification.
+    var object: Object { get }
 }
 
 extension TypedNotification {
 
-    static var name: String {
-        return "AJJ" + String(describing: Self.self)
-    }
-
-    /// The notification's name as required for the Foundation methods.
-    static var notificationName: Notification.Name {
-        return Notification.Name("\(Self.name)")
-    }
-
-    /// The Foundation representation of the notification.
-    var notification: Notification {
-        return Notification(name: Self.notificationName,
-                            object: sender,
-                            userInfo: ["noti": self])
+    static var name: Notification.Name {
+        let rawName = "AJJ" + String(describing: Self.self)
+        return Notification.Name(rawName)
     }
 }
 
@@ -72,7 +102,7 @@ public protocol TypedNotificationCenter {
     func post<T: TypedNotification>(_ notification: T)
 
     /// Register a block to be executed when a `TypedNotification` is posted.
-    func addObserver<T: TypedNotification>(forType type: T.Type, object obj: T.Sender?,
+    func addObserver<T: TypedNotification>(forType type: T.Type, object obj: T.Object?,
                                            queue: OperationQueue?, using block: @escaping (T) -> Void) -> NotificationObserver
 
     /// Deregister a `NotificationObserver`.
@@ -82,9 +112,12 @@ public protocol TypedNotificationCenter {
 // MARK: - NSNotificationCenter + TypedNotificationCenter
 
 extension NotificationCenter: TypedNotificationCenter {
-    /// Post a `TypedNotification`
+
+    /// Posts a `TypedNotification`
     public func post<T: TypedNotification>(_ notification: T) {
-        self.post(notification.notification)
+        let nsNotification = Notification(name: T.name, object: notification.object,
+                                          userInfo: [kTypedNotificationUserInfoKey: notification])
+        self.post(nsNotification)
     }
 
     /**
@@ -104,12 +137,12 @@ extension NotificationCenter: TypedNotificationCenter {
      - SeeAlso:  NotificationCenter
      */
     public func addObserver<T: TypedNotification>(forType type: T.Type,
-                                                  object obj: T.Sender?,
+                                                  object obj: T.Object?,
                                                   queue: OperationQueue?,
                                                   using block: @escaping (T) -> Void)
         -> NotificationObserver {
-        let token = self.addObserver(forName: T.notificationName, object: obj, queue: queue) { (untypedNoti) in
-            guard let typedNoti = untypedNoti.userInfo?["noti"] as? T else {
+        let token = self.addObserver(forName: T.name, object: obj, queue: queue) { (untypedNoti) in
+            guard let typedNoti = untypedNoti.userInfo?[kTypedNotificationUserInfoKey] as? T else {
                 print("Typed notification could not be constructed from Notification \(untypedNoti.name)")
                 return
             }

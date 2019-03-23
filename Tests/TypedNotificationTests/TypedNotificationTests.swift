@@ -3,7 +3,7 @@ import XCTest
 
 struct TestNotification: TypedNotification {
     let associatedValue: Int
-    let sender: TestObserver
+    let object: TestObserver
 }
 
 class MockNotifcationCenter: TypedNotificationCenter {
@@ -18,7 +18,7 @@ class MockNotifcationCenter: TypedNotificationCenter {
         return
     }
 
-    func addObserver<T: TypedNotification>(forType type: T.Type, object obj: T.Sender?, queue: OperationQueue?, using block: @escaping (T) -> Void) -> NotificationObserver {
+    func addObserver<T: TypedNotification>(forType type: T.Type, object obj: T.Object?, queue: OperationQueue?, using block: @escaping (T) -> Void) -> NotificationObserver {
         return NotificationObserver(NSObject(), notiCenter: self)
     }
 }
@@ -30,7 +30,7 @@ class TestObserver {
     var _valueObserver: NotificationObserver?
     var value = Int(arc4random()) {
         didSet {
-            center.post(TestNotification(associatedValue: value, sender: self))
+            center.post(TestNotification(associatedValue: value, object: self))
         }
     }
 
@@ -73,12 +73,12 @@ class TypedNotificationTests: XCTestCase {
         var blockCallCount = 0
 
         observer1.block = { (noti: TestNotification) -> Void in
-            XCTAssertTrue(noti.sender === observer1)
+            XCTAssertTrue(noti.object === observer1)
             blockCallCount += 1
         }
 
         observer2.block = { (noti: TestNotification) -> Void in
-            XCTAssertTrue(noti.sender === observer2)
+            XCTAssertTrue(noti.object === observer2)
             blockCallCount += 1
         }
 
@@ -103,7 +103,7 @@ class TypedNotificationTests: XCTestCase {
         }
 
         observer3.block = { (noti: TestNotification) -> Void in
-            XCTAssertTrue(noti.sender === observer3)
+            XCTAssertTrue(noti.object === observer3)
             blockCallCount += 1
         }
 
