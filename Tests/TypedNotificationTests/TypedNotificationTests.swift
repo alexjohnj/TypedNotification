@@ -1,10 +1,6 @@
 import XCTest
 @testable import TypedNotification
 
-extension Namespaced {
-    static var namespace: String { return "org.alexj.TypedNotificationTests" }
-}
-
 struct TestNotification: TypedNotification {
     let associatedValue: Int
     let sender: TestObserver
@@ -59,9 +55,6 @@ class TestObserver {
 }
 
 class TypedNotificationTests: XCTestCase {
-    func testNotificationName() {
-        XCTAssertEqual(TestNotification.name, "org.alexj.TypedNotificationTests.TestNotification")
-    }
 
     func testTokenDeinit() {
         weak var observerToken: NotificationObserver? = {

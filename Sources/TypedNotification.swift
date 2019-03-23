@@ -7,32 +7,23 @@
 
 import Foundation
 
-/// The `TypedNotification` protocol defines the properties of a strongly typed
-/// notification. As a minimum, conforming types must specify a type for the
-/// `sender` property. The `name` property will be automatically generated from
-/// the `namespace` property and the type's name but can be modified if needed.
+/// A notification that can be posted by a `TypedNotification` instance.
 ///
-/// As an example, here is a `TypedNotification` that's designed to mimic the
-/// Foundation `Notification` type.
-/// ```
-/// struct Notification: TypedNotification {
-///    static var namespace: String { return "Foundation" } // Conform to `Namespaced` protocol
-///    var sender: Any?
-///    var userInfo: [AnyHashable: Any]?
-/// }
-public protocol TypedNotification: Namespaced {
+public protocol TypedNotification {
+
     associatedtype Sender
+
     /// The name of the notification used as an identifier.
     static var name: String { get }
+
     /// The object sending the notification.
     var sender: Sender { get }
 }
 
 extension TypedNotification {
-    /// The name of the notification used as an identifier defaulting to
-    /// "Namespace.TypeName".
-    public static var name: String {
-        return "\(Self.namespace).\(Self.self)"
+
+    static var name: String {
+        return "AJJ" + String(describing: Self.self)
     }
 
     /// The notification's name as required for the Foundation methods.
