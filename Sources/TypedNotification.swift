@@ -81,7 +81,9 @@ extension TypedNotification {
 /// A `NotificationObservation` is initialized with a dispose block that is executed when the observer is deallocated.
 /// Inside the dispose block, you should run whatever actions are needed to remove the observer.
 ///
-public final class NotificationObservation {
+/// - Seealso: NotificationObservationBag
+///
+public final class NotificationObservation: CustomStringConvertible {
 
     private let disposeBlock: () -> Void
 
@@ -93,12 +95,60 @@ public final class NotificationObservation {
         self.disposeBlock = disposeBlock
     }
 
-    public func stored<C: RangeReplaceableCollection>(in observationStore: inout C) where C.Element == NotificationObservation {
-        observationStore.append(self)
+    /// Adds the observation to a given observation bag.
+    public func stored(in bag: NotificationObservationBag) {
+        bag.add(self)
+    }
+
+    public var description: String {
+        return "\(NotificationObservation.self)<\(Unmanaged.passUnretained(self).toOpaque())>"
     }
 
     deinit {
         disposeBlock()
+    }
+}
+
+/// An object that stores multiple `NotificationObservations`. When the observation bag is deallocated, all its stored
+/// observations are also deallocated, removing any observers.
+///
+/// - Note: `NotificationObservationBag` is thread safe.
+///
+public final class NotificationObservationBag: CustomStringConvertible {
+
+    private var observations: [NotificationObservation] = []
+
+    private var lock = os_unfair_lock()
+
+    /// For testing only. Returns the number of observations stored in the bag.
+    internal var _count: Int {
+        os_unfair_lock_lock(&lock)
+        defer { os_unfair_lock_unlock(&lock) }
+        return observations.count
+    }
+
+    public var description: String {
+        return "\(NotificationObservationBag.self)<\(Unmanaged.passUnretained(self).toOpaque())>\(observations)"
+    }
+
+    public init() { }
+
+    /// Inserts an observation into the bag.
+    public func add(_ observation: NotificationObservation) {
+        os_unfair_lock_lock(&lock)
+        observations.append(observation)
+        os_unfair_lock_unlock(&lock)
+    }
+
+    /// Removes all observations from the bag.
+    public func empty() {
+        os_unfair_lock_lock(&lock)
+        observations.removeAll()
+        os_unfair_lock_unlock(&lock)
+    }
+
+    deinit {
+        empty()
     }
 }
 

@@ -13,10 +13,7 @@ class TypedNotificationTests: XCTestCase {
     func test_notificationObservation_invokesDisposeBlockOnDeinit() {
         // Given
         var disposeBlockCalled = false
-        var observation: NotificationObservation? = NotificationObservation { disposeBlockCalled = true }
-
-        // When
-        observation = nil
+        _ = NotificationObservation { disposeBlockCalled = true }
 
         // Then
         XCTAssertTrue(disposeBlockCalled)
@@ -24,13 +21,49 @@ class TypedNotificationTests: XCTestCase {
 
     func test_notificationObservation_storedIn_addsObservationToStore() {
         // Given
-        var observationStore: [NotificationObservation] = []
+        let bag = NotificationObservationBag()
 
         // When
-        NotificationObservation({ }).stored(in: &observationStore)
+        NotificationObservation({ }).stored(in: bag)
 
         // Then
-        XCTAssertEqual(observationStore.count, 1)
+        XCTAssertEqual(bag._count, 1)
+    }
+
+    func test_notificationObservationBag_add_addsObservationToStore() {
+        // Given
+        let bag = NotificationObservationBag()
+        let observation = NotificationObservation({ })
+
+        // When
+        bag.add(observation)
+
+        // Then
+        XCTAssertEqual(bag._count, 1)
+    }
+
+    func test_notificationObservationBag_disposesObservationsWhenEmptied() {
+        // Given
+        let bag = NotificationObservationBag()
+        var disposeCalled = false
+
+        // When
+        NotificationObservation({ disposeCalled = true }).stored(in: bag)
+        bag.empty()
+
+        // Then
+        XCTAssertTrue(disposeCalled)
+    }
+
+    func test_notificationObservationBag_disposesObservationsWhenDeallocated() {
+        // Given
+        var disposeCalled = false
+
+        // When
+        NotificationObservation({ disposeCalled = true }).stored(in: NotificationObservationBag())
+
+        // Then
+        XCTAssertTrue(disposeCalled)
     }
 
     func test_notificationCenter_works() {
