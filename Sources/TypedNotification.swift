@@ -68,7 +68,7 @@ public protocol TypedNotification {
 
 extension TypedNotification {
 
-    static var name: Notification.Name {
+    public static var name: Notification.Name {
         let rawName = "AJJ" + String(describing: Self.self)
         return Notification.Name(rawName)
     }
