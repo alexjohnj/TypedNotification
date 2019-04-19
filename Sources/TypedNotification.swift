@@ -5,9 +5,7 @@
 //  Created by Alex Jackson on 2017-07-03.
 //
 
-import struct Foundation.Notification
-import class Foundation.NotificationCenter
-import class Foundation.OperationQueue
+import Foundation
 import os.lock
 
 /// The `userInfo` dictionary key that a `TypedNotification` instance is stored under in a Foundation `Notification`
@@ -197,14 +195,31 @@ extension NotificationCenter: TypedNotificationCenter {
                                                   queue: OperationQueue?,
                                                   using block: @escaping (T) -> Void)
         -> NotificationObservation {
-        let observer = self.addObserver(forName: T.name, object: obj, queue: queue) { (untypedNoti) in
-            guard let typedNoti = untypedNoti.userInfo?[kTypedNotificationUserInfoKey] as? T else {
-                print("Typed notification could not be constructed from Notification \(untypedNoti.name)")
-                return
+            return self.addObserver(forNotificationNamed: T.name, object: obj, queue: queue) { (untypedNoti) in
+                guard let typedNoti = untypedNoti.userInfo?[kTypedNotificationUserInfoKey] as? T else {
+                    print("Typed notification could not be constructed from Notification \(untypedNoti.name)")
+                    return
+                }
+                block(typedNoti)
             }
-            block(typedNoti)
-        }
+    }
+}
 
+// MARK: - NSNotificationCenter + NotificationObservation
+
+extension NotificationCenter {
+
+    /// Registers a block to be executed when a matching un-typed notification is posted.
+    ///
+    /// This method is identical to the Foundation `addObserver(forName:object:queue:using:)` method but returns a
+    /// `NotificationObservation` instance instead.
+    ///
+    /// - Seealso: addObserver(forName:object:queue:using:)
+    ///
+    public func addObserver(forNotificationNamed name: NSNotification.Name?, object obj: Any?, queue: OperationQueue?,
+                            using block: @escaping (Notification) -> Void) -> NotificationObservation {
+        let observer: NSObjectProtocol = self.addObserver(forName: name, object: obj, queue: queue, using: block)
         return NotificationObservation { self.removeObserver(observer) }
     }
+
 }
