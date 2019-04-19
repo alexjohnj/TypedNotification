@@ -23,7 +23,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		OBJ_11 /* TypedNotificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypedNotificationTests.swift; sourceTree = "<group>"; };
+		OBJ_11 /* TypedNotificationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TypedNotificationTests.swift; path = Tests/TypedNotificationTests.swift; sourceTree = "<group>"; };
 		OBJ_13 /* TypedNotification.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TypedNotification.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_14 /* TypedNotificationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = TypedNotificationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -49,15 +49,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		OBJ_10 /* TypedNotificationTests */ = {
-			isa = PBXGroup;
-			children = (
-				OBJ_11 /* TypedNotificationTests.swift */,
-			);
-			name = TypedNotificationTests;
-			path = Tests/TypedNotificationTests;
-			sourceTree = SOURCE_ROOT;
-		};
 		OBJ_12 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -88,7 +79,7 @@
 		OBJ_9 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_10 /* TypedNotificationTests */,
+				OBJ_11 /* TypedNotificationTests.swift */,
 			);
 			name = Tests;
 			sourceTree = SOURCE_ROOT;
