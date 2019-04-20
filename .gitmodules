@@ -1,0 +1,4 @@
+[submodule "TypedNotification"]
+	path = TypedNotification
+	url = https://github.com/alexjohnj/TypedNotification.git
+	branch = master
