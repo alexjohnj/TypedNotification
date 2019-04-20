@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TypedNotification Protocol Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Protocol/TypedNotification" class="dashAnchor"></a>
+    <a title="TypedNotification Protocol Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">TypedNotification Docs</a> (95% documented)</p>
+        <p class="header-right"><a href="https://github.com/alexjohnj/TypedNotification"><img src="../img/gh.png"/>View on GitHub</a></p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">TypedNotification Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        TypedNotification Protocol Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/NotificationObservation.html">NotificationObservation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/NotificationObservationBag.html">NotificationObservationBag</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Extensions.html">Extensions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Extensions/NotificationCenter.html">NotificationCenter</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/TypedNotification.html">TypedNotification</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/TypedNotificationCenter.html">TypedNotificationCenter</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>TypedNotification</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">TypedNotification</span></code></pre>
+
+                </div>
+              </div>
+            <p>A notification that can be posted by a <code><a href="../Protocols/TypedNotificationCenter.html">TypedNotificationCenter</a></code> instance.</p>
+
+<p><code>TypedNotification</code> provides a type-safe alternative to Foundation&rsquo;s <code>Notification</code> type. All conforming types must
+specify the type of the <code>object</code> attached to the notification. Conforming types can attach additional data to the
+notification as properties. This replaces stringly typed <code>userInfo</code> dictionary attached to Foundation
+<code>Notification</code>s</p>
+<h2 id='conforming-to-code-typednotification-code' class='heading'>Conforming to <code>TypedNotification</code></h2>
+
+<p>Conforming types must declare the type of the object attached to the notification and provide storage for it. For
+example, a notification posted by a <code>DataStore</code> object might look like this:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">DataStoreDidSaveNotification</span><span class="p">:</span> <span class="kt">TypedNotification</span> <span class="p">{</span>
+    <span class="c1">/// The data store posting the notification.</span>
+    <span class="k">let</span> <span class="nv">object</span><span class="p">:</span> <span class="kt">DataStore</span>
+<span class="p">}</span>
+</code></pre>
+<h2 id='customising-the-notification-name' class='heading'>Customising the Notification Name</h2>
+
+<p>A default notification name for conforming types is generated in a protocol extension. The name consists of the name
+of the notification type prefixed by <code>AJJ</code>. You can specify a different name by implementing the static <code>name</code>
+property on your notification types:</p>
+<pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">DataStoreDidSaveNotification</span><span class="p">:</span> <span class="kt">TypedNotification</span> <span class="p">{</span>
+
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">name</span> <span class="o">=</span> <span class="kt">Notification</span><span class="o">.</span><span class="kt">Name</span><span class="p">(</span><span class="s">"XYZDataStoreDidSave"</span><span class="p">)</span>
+
+    <span class="c1">/// The data store posting the notification.</span>
+    <span class="k">let</span> <span class="nv">object</span><span class="p">:</span> <span class="kt">DataStore</span>
+<span class="p">}</span>
+</code></pre>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:17TypedNotificationAAP6ObjectQa"></a>
+                    <a name="//apple_ref/swift/Alias/Object" class="dashAnchor"></a>
+                    <a class="token" href="#/s:17TypedNotificationAAP6ObjectQa">Object</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The type of an object attached to the notification.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">associatedtype</span> <span class="kt">Object</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:17TypedNotificationAAP4nameSo18NSNotificationNameavpZ"></a>
+                    <a name="//apple_ref/swift/Variable/name" class="dashAnchor"></a>
+                    <a class="token" href="#/s:17TypedNotificationAAP4nameSo18NSNotificationNameavpZ">name</a>
+                    </code>
+                      <span class="declaration-note">
+                        Default implementation
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The name of the notification that identifies it.</p>
+
+<p>The default implementation returns the name of <code>Self</code> prefixed with <code>AJJ</code>.</p>
+
+                      </div>
+                      <h4>Default Implementation</h4>
+                      <div class="default_impl abstract">
+                        
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">Notification</span><span class="o">.</span><span class="kt">Name</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:17TypedNotificationAAP6object6ObjectQzvp"></a>
+                    <a name="//apple_ref/swift/Property/object" class="dashAnchor"></a>
+                    <a class="token" href="#/s:17TypedNotificationAAP6object6ObjectQzvp">object</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An object attached to the notification.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">object</span><span class="p">:</span> <span class="kt"><a href="../Protocols/TypedNotification.html#/s:17TypedNotificationAAP6ObjectQa">Object</a></span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2019 <a class="link" href="https://alexj.org" target="_blank" rel="external">Alex Jackson</a>. All rights reserved. (Last updated: 2019-04-20)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.6</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>
