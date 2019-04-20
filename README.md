@@ -7,6 +7,9 @@ file.
 
 ## Usage
 
+Reference documentation is available
+[here](https://alexjohnj.github.io/TypedNotification/).
+
 ### Playground
 
 This repository includes an annotated playground that demonstrates the features
