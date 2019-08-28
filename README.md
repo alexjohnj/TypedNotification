@@ -2,8 +2,7 @@
 
 _TypedNotification_ is a Swift library that adds some type-safety to
 Foundation's `NotificationCenter`. The library is small and can be added to your
-project either as a static framework or by directly including the single source
-file.
+project either as a framework or by directly including the single source file.
 
 ## Usage
 
@@ -17,7 +16,7 @@ of _TypedNotification_. To use it:
 
 1. Clone the repository.
 2. Open `TypedNotification.xcworkspace`
-3. Build the _TypedNotification (Playground)_ scheme.
+3. Build the _TypedNotification_ scheme for your Mac.
 4. Open the _Demo_ playground and run it.
 
 ### Overview
@@ -133,10 +132,6 @@ Add the following to your `Cartfile`:
 ```
 github "alexjohnj/TypedNotification" ~> 2.0
 ```
-
-_TypedNotification_ builds as a static framework so you'll find the output in
-`Build/$PLATFORM/Static`. Remember not to embed the framework in your
-application, just link against it.
 
 ### Swift Package Manager
 
