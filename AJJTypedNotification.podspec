@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
   spec.name                      = 'AJJTypedNotification'
   spec.module_name               = 'TypedNotification'
-  spec.version                   = '2.0.0'
+  spec.version                   = '2.0.1'
 
   spec.license                   = { :type => 'MIT' }
   spec.homepage                  = 'https://github.com/alexjohnj/TypedNotification'
